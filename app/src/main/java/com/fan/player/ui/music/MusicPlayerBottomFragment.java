@@ -54,7 +54,7 @@ public class MusicPlayerBottomFragment extends BaseFragment implements MusicPlay
     private static final long UPDATE_PROGRESS_INTERVAL = 1000;
 
     @BindView(R.id.image_view_album)
-    ShadowImageView imageViewAlbum;
+    ImageView imageViewAlbum;
     @BindView(R.id.text_view_name)
     TextView textViewName;
     @BindView(R.id.text_view_artist)
@@ -226,25 +226,6 @@ public class MusicPlayerBottomFragment extends BaseFragment implements MusicPlay
         Song song = playList.getCurrentSong();
         onSongUpdated(song);
 
-        /*
-        seekBarProgress.setProgress(0);
-        seekBarProgress.setEnabled(result);
-        textViewProgress.setText(R.string.mp_music_default_duration);
-
-        if (result) {
-            imageViewAlbum.startRotateAnimation();
-            buttonPlayToggle.setImageResource(R.drawable.ic_pause);
-            textViewDuration.setText(TimeUtils.formatDuration(song.getDuration()));
-        } else {
-            buttonPlayToggle.setImageResource(R.drawable.ic_play);
-            textViewDuration.setText(R.string.mp_music_default_duration);
-        }
-
-        mHandler.removeCallbacks(mProgressCallback);
-        mHandler.post(mProgressCallback);
-
-        getActivity().startService(new Intent(getActivity(), PlaybackService.class));
-        */
     }
 
     private void updateProgressTextWithProgress(int progress) {
@@ -294,11 +275,9 @@ public class MusicPlayerBottomFragment extends BaseFragment implements MusicPlay
     public void onPlayStatusChanged(boolean isPlaying) {
         updatePlayToggle(isPlaying);
         if (isPlaying) {
-//            imageViewAlbum.resumeRotateAnimation();
             mHandler.removeCallbacks(mProgressCallback);
             mHandler.post(mProgressCallback);
         } else {
-//            imageViewAlbum.pauseRotateAnimation();
             mHandler.removeCallbacks(mProgressCallback);
         }
     }
@@ -328,8 +307,7 @@ public class MusicPlayerBottomFragment extends BaseFragment implements MusicPlay
 
     public void onSongUpdated(@Nullable Song song) {
         if (song == null) {
-//            imageViewAlbum.cancelRotateAnimation();
-            buttonPlayToggle.setImageResource(R.drawable.ic_play);
+            buttonPlayToggle.setImageResource(R.drawable.playbar_btn_play);
             seekBarProgress.setProgress(0);
             updateProgressTextWithProgress(0);
             seekTo(0);
@@ -337,27 +315,19 @@ public class MusicPlayerBottomFragment extends BaseFragment implements MusicPlay
             return;
         }
 
-        // Step 1: Song name and artist
         textViewName.setText(song.getDisplayName());
         textViewArtist.setText(song.getArtist());
-        // Step 2: favorite
-        // Step 3: Duration
         textViewDuration.setText(TimeUtils.formatDuration(song.getDuration()));
-        // Step 4: Keep these things updated
-        // - Album rotation
-        // - Progress(textViewProgress & seekBarProgress)
         Bitmap bitmap = AlbumUtils.parseAlbum(song);
         if (bitmap == null) {
             imageViewAlbum.setImageResource(R.drawable.default_record_album);
         } else {
             imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
         }
-//        imageViewAlbum.pauseRotateAnimation();
         mHandler.removeCallbacks(mProgressCallback);
         if (mPlayer.isPlaying()) {
-//            imageViewAlbum.startRotateAnimation();
             mHandler.post(mProgressCallback);
-            buttonPlayToggle.setImageResource(R.drawable.ic_pause);
+            buttonPlayToggle.setImageResource(R.drawable.playbar_btn_pause);
         }
     }
 
@@ -367,7 +337,7 @@ public class MusicPlayerBottomFragment extends BaseFragment implements MusicPlay
 
     @Override
     public void updatePlayToggle(boolean play) {
-        buttonPlayToggle.setImageResource(play ? R.drawable.ic_pause : R.drawable.ic_play);
+        buttonPlayToggle.setImageResource(play ? R.drawable.playbar_btn_pause : R.drawable.playbar_btn_play);
     }
 
     @Override

@@ -39,6 +39,8 @@
 
     <!-- Music Bottom-->
     <dimen name="mp.music.bottom.album.size">50dp</dimen>
+
+    <dimen name="mp.music.bottom.btn.size">50dp</dimen>
     <dimen name="mp.music.bottom.seekBar.marginLeft">10dp</dimen>
     <dimen name="mp.music.bottom.playControls.marginLeft">4dp</dimen>
     <dimen name="mp.music.bottom.playControls.marginRight">4dp</dimen>
