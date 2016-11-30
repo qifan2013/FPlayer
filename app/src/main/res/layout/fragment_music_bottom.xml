@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/black"
+    android:gravity="center_vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layout_play_controls_above"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:id="@+id/layout_progress"
+            android:layout_width="match_parent"
+            android:layout_height="25dp"
+            android:gravity="center_vertical"
+            android:minHeight="5dp"
+            android:layout_marginTop="0dp"
+            android:paddingTop="0dp"
+            >
+
+            <TextView
+                android:id="@+id/text_view_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorAccent"
+                android:textSize="12sp"
+                android:singleLine="true"
+                android:visibility="gone"
+                android:text="@string/mp.music.default_duration"
+                />
+
+            <android.support.v7.widget.AppCompatSeekBar
+                android:id="@+id/seek_bar"
+                style="@style/Widget.AppCompat.Bottom.ProgressBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="10000"
+                android:layout_marginTop="0dp"
+                tools:progress="5000"
+                />
+
+            <TextView
+                android:id="@+id/text_view_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorAccent"
+                android:textSize="12sp"
+                android:singleLine="true"
+                android:text="@string/mp.music.default_duration"
+                tools:text="03:22"
+                android:visibility="gone"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_play_controls_above"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal"
+        >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            >
+
+            <com.fan.player.ui.widget.ShadowImageView
+                android:id="@+id/image_view_album"
+                android:layout_width="@dimen/mp.music.bottom.album.size"
+                android:layout_height="@dimen/mp.music.bottom.album.size"
+                android:layout_centerInParent="true"
+                android:src="@drawable/default_record_album"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_play_controls"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="@dimen/mp.music.playControls.marginBottom"
+            android:divider="@drawable/common_divider_xlarge_horizontal"
+            android:gravity="center_vertical"
+>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="5dp"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/text_view_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="left|center_vertical"
+                    android:layout_marginTop="5dp"
+                    android:textColor="?attr/colorAccent"
+                    android:textSize="18sp"
+                    tools:text="Drag me down"
+                    />
+
+                <TextView
+                    android:id="@+id/text_view_artist"
+                    android:layout_width="match_parent"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="left|center_vertical"
+                    android:textColor="?attr/colorAccent"
+                    android:textSize="14sp"
+                    tools:text="One Direction"
+                    />
+            </LinearLayout>
+
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/button_play_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/ic_play"
+                android:layout_toLeftOf="@+id/button_play_next"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"/>
+
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/button_play_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:srcCompat="@drawable/ic_play_next"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                />
+        </RelativeLayout>
+    </LinearLayout>
+</RelativeLayout>
