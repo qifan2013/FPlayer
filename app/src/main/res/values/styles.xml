@@ -192,11 +192,10 @@
         <item name="android:textColor">@color/mp.theme.dark_blue.colorPrimary</item>
     </style>
 
-    <style name="Widget.AppCompat.Bottom.ProgressBar" parent="Base.Widget.AppCompat.ProgressBar">
+    <style name="Widget.AppCompat.Bottom.ProgressBar" parent="Widget.AppCompat.SeekBar">
         <item name="android:maxHeight">8.0dip</item>
         <item name="android:focusable">false</item>
         <item name="android:indeterminateOnly">false</item>
         <item name="android:minHeight">8.0dip</item>
-        <item name="android:thumbOffset">10.0dip</item>
     </style>
 </resources>

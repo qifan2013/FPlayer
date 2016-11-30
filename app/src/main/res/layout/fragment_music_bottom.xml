@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+    android:background="@drawable/player_bottom_bg"
     android:gravity="center_vertical">
 
     <LinearLayout
@@ -19,8 +19,8 @@
             android:id="@+id/layout_progress"
             android:layout_width="match_parent"
             android:layout_height="25dp"
-            android:gravity="center_vertical"
-            android:minHeight="5dp"
+            android:gravity="top"
+            android:minHeight="0dp"
             android:layout_marginTop="0dp"
             android:paddingTop="0dp"
             >
@@ -36,7 +36,7 @@
                 android:text="@string/mp.music.default_duration"
                 />
 
-            <android.support.v7.widget.AppCompatSeekBar
+            <SeekBar
                 android:id="@+id/seek_bar"
                 style="@style/Widget.AppCompat.Bottom.ProgressBar"
                 android:layout_width="0dp"
@@ -44,7 +44,9 @@
                 android:layout_weight="1"
                 android:max="10000"
                 android:layout_marginTop="0dp"
+                android:progressDrawable="@drawable/seekbar_define_color_style"
                 tools:progress="5000"
+                android:thumbOffset="2dip"
                 />
 
             <TextView
@@ -64,7 +66,7 @@
     <LinearLayout
         android:id="@+id/layout_play_controls_above"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="50dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_gravity="center_vertical"
@@ -81,7 +83,8 @@
                 android:layout_width="@dimen/mp.music.bottom.album.size"
                 android:layout_height="@dimen/mp.music.bottom.album.size"
                 android:layout_centerInParent="true"
-                android:layout_marginLeft="5dp"
+                android:scaleType="centerCrop"
+                android:layout_marginLeft="15dp"
                 android:src="@drawable/default_record_album_bottom"
                 />
         </RelativeLayout>
@@ -104,23 +107,23 @@
                 <TextView
                     android:id="@+id/text_view_name"
                     android:layout_width="match_parent"
-                    android:layout_height="30dp"
+                    android:layout_height="22dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="left|center_vertical"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="3dp"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
+                    android:textSize="16sp"
                     tools:text="Drag me down"
                     />
 
                 <TextView
                     android:id="@+id/text_view_artist"
                     android:layout_width="match_parent"
-                    android:layout_height="25dp"
+                    android:layout_height="15dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="left|center_vertical"
                     android:textColor="#e5e5e5"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     tools:text="One Direction"
                     />
             </LinearLayout>
@@ -134,7 +137,7 @@
                 app:srcCompat="@drawable/playbar_btn_play"
                 android:layout_toLeftOf="@+id/button_play_next"
                 android:layout_centerVertical="true"
-                android:layout_marginRight="5dp"/>
+                android:scaleType="centerCrop"/>
 
             <android.support.v7.widget.AppCompatImageView
                 android:id="@+id/button_play_next"
@@ -143,6 +146,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 app:srcCompat="@drawable/playbar_btn_next"
                 android:layout_alignParentRight="true"
+                android:scaleType="centerCrop"
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
                 />
