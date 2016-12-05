@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +34,9 @@ import com.fan.player.ui.base.BaseFragment;
 import com.fan.player.ui.widget.ShadowImageView;
 import com.fan.player.utils.AlbumUtils;
 import com.fan.player.utils.TimeUtils;
+
+import java.util.ArrayList;
+
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -50,8 +56,9 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     // Update seek bar every second
     private static final long UPDATE_PROGRESS_INTERVAL = 1000;
 
-    @BindView(R.id.image_view_album)
-    ShadowImageView imageViewAlbum;
+    @BindView(R.id.view_pager_album)
+    ViewPager viewPagerAlbum;
+
     @BindView(R.id.text_view_name)
     TextView textViewName;
     @BindView(R.id.text_view_artist)
@@ -71,6 +78,10 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     ImageView buttonFavoriteToggle;
 
     private IPlayback mPlayer;
+    private ShadowImageView imageViewAlbum;
+    private AlbumPagerAdapter albumPagerAdapter;
+
+    private ArrayList<View> albumPagerList = new ArrayList<View>();
 
     private Handler mHandler = new Handler();
 
@@ -231,6 +242,22 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     private void onPlayListNowEvent(PlayListNowEvent event) {
         PlayList playList = event.playList;
         int playIndex = event.playIndex;
+
+        for(int i=0;i<playList.getSongs().size();i++){
+            View page = getActivity().getLayoutInflater().inflate(R.layout.viewpager_album_pager, null);
+            imageViewAlbum = (ShadowImageView) page.findViewById(R.id.image_view_album);
+            Bitmap bitmap = AlbumUtils.parseAlbum(playList.getSongs().get(i));
+            if (bitmap == null) {
+                imageViewAlbum.setImageResource(R.drawable.default_record_album);
+            } else {
+                imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
+            }
+            albumPagerList.add(page);
+        }
+
+        Log.d("qifan","playList.getSongs().size()"+playList.getSongs().size());
+        viewPagerAlbum.setAdapter(new AlbumPagerAdapter(albumPagerList));
+
         playSong(playList, playIndex);
     }
 
@@ -250,7 +277,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
         Song song = playList.getCurrentSong();
         onSongUpdated(song);
-
         /*
         seekBarProgress.setProgress(0);
         seekBarProgress.setEnabled(result);
@@ -375,15 +401,15 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
         // - Album rotation
         // - Progress(textViewProgress & seekBarProgress)
         Bitmap bitmap = AlbumUtils.parseAlbum(song);
-        if (bitmap == null) {
-            imageViewAlbum.setImageResource(R.drawable.default_record_album);
-        } else {
-            imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
-        }
-        imageViewAlbum.pauseRotateAnimation();
+//        if (bitmap == null) {
+//            imageViewAlbum.setImageResource(R.drawable.default_record_album);
+//        } else {
+//            imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
+//        }
+//        imageViewAlbum.pauseRotateAnimation();
         mHandler.removeCallbacks(mProgressCallback);
         if (mPlayer.isPlaying()) {
-            imageViewAlbum.startRotateAnimation();
+//            imageViewAlbum.startRotateAnimation();
             mHandler.post(mProgressCallback);
             buttonPlayToggle.setImageResource(R.drawable.ic_pause);
         }
@@ -424,4 +450,37 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     public void setPresenter(MusicPlayerContract.Presenter presenter) {
         mPresenter = presenter;
     }
+
+    class AlbumPagerAdapter extends PagerAdapter {
+
+        private ArrayList<View> views;
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+
+            container.addView(views.get(position));
+            return views.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return views.size();
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View) object);
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        public AlbumPagerAdapter(ArrayList<View> viewList) {
+
+            views = viewList;
+        }
+    }
+
 }

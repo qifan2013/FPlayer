@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+    <com.fan.player.ui.widget.ShadowImageView
+        android:id="@+id/image_view_album"
+        android:layout_width="@dimen/mp.music.album.size"
+        android:layout_height="@dimen/mp.music.album.size"
+        android:src="@drawable/default_record_album"
+        />
+</LinearLayout>
