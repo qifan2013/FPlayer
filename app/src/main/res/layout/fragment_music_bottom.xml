@@ -18,7 +18,7 @@
         <LinearLayout
             android:id="@+id/layout_progress"
             android:layout_width="match_parent"
-            android:layout_height="25dp"
+            android:layout_height="15dp"
             android:gravity="top"
             android:minHeight="0dp"
             android:layout_marginTop="0dp"
@@ -69,6 +69,7 @@
         android:layout_height="50dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:paddingTop="5dp"
         android:layout_gravity="center_vertical"
         android:orientation="horizontal"
         >
@@ -83,7 +84,7 @@
                 android:layout_width="@dimen/mp.music.bottom.album.size"
                 android:layout_height="@dimen/mp.music.bottom.album.size"
                 android:layout_centerInParent="true"
-                android:scaleType="centerCrop"
+                android:scaleType="fitCenter"
                 android:layout_marginLeft="15dp"
                 android:src="@drawable/default_record_album_bottom"
                 />
@@ -93,7 +94,6 @@
             android:id="@+id/layout_play_controls"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="@dimen/mp.music.playControls.marginBottom"
             android:divider="@drawable/common_divider_xlarge_horizontal"
             android:gravity="center_vertical"
 >
@@ -106,23 +106,29 @@
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/text_view_name"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="22dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="left|center_vertical"
                     android:layout_marginTop="3dp"
                     android:textColor="@color/black"
+                    android:maxEms="10"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
                     android:textSize="16sp"
                     tools:text="Drag me down"
                     />
 
                 <TextView
                     android:id="@+id/text_view_artist"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="15dp"
                     android:layout_gravity="center_vertical"
                     android:gravity="left|center_vertical"
                     android:textColor="#e5e5e5"
+                    android:maxEms="10"
+                    android:singleLine="true"
+                    android:ellipsize="marquee"
                     android:textSize="13sp"
                     tools:text="One Direction"
                     />
