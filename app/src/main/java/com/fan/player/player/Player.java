@@ -58,6 +58,10 @@ public class Player implements IPlayback, MediaPlayer.OnCompletionListener {
     }
 
     @Override
+    public PlayList getPlayList() {
+        return mPlayList;
+    }
+    @Override
     public boolean play() {
         if (isPaused) {
             mPlayer.start();

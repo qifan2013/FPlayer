@@ -27,7 +27,6 @@ import com.fan.player.player.IPlayback;
 import com.fan.player.player.PlayMode;
 import com.fan.player.player.PlaybackService;
 import com.fan.player.ui.base.BaseFragment;
-import com.fan.player.ui.widget.ShadowImageView;
 import com.fan.player.utils.AlbumUtils;
 import com.fan.player.utils.TimeUtils;
 

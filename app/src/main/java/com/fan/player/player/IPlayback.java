@@ -13,6 +13,8 @@ import com.fan.player.data.model.Song;
  */
 public interface IPlayback {
 
+    PlayList getPlayList();
+
     void setPlayList(PlayList list);
 
     boolean play();

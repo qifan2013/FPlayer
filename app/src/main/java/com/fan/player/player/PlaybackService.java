@@ -96,6 +96,11 @@ public class PlaybackService extends Service implements IPlayback, IPlayback.Cal
     }
 
     @Override
+    public PlayList getPlayList() {
+        return mPlayer.getPlayList();
+    }
+
+    @Override
     public void setPlayList(PlayList list) {
         mPlayer.setPlayList(list);
     }

@@ -58,7 +58,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
     @BindView(R.id.view_pager_album)
     ViewPager viewPagerAlbum;
-
     @BindView(R.id.text_view_name)
     TextView textViewName;
     @BindView(R.id.text_view_artist)
@@ -69,7 +68,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     TextView textViewDuration;
     @BindView(R.id.seek_bar)
     SeekBar seekBarProgress;
-
     @BindView(R.id.button_play_mode_toggle)
     ImageView buttonPlayModeToggle;
     @BindView(R.id.button_play_toggle)
@@ -78,10 +76,9 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     ImageView buttonFavoriteToggle;
 
     private IPlayback mPlayer;
-    private ShadowImageView imageViewAlbum;
     private AlbumPagerAdapter albumPagerAdapter;
 
-    private ArrayList<View> albumPagerList = new ArrayList<View>();
+    private ArrayList<View> albumPagerList = new ArrayList<>();
 
     private Handler mHandler = new Handler();
 
@@ -93,6 +90,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
             if (isDetached()) return;
 
             if (mPlayer.isPlaying()) {
+
                 int progress = (int) (seekBarProgress.getMax()
                         * ((float) mPlayer.getProgress() / (float) getCurrentSongDuration()));
                 updateProgressTextWithDuration(mPlayer.getProgress());
@@ -107,10 +105,10 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
             }
         }
     };
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         return inflater.inflate(R.layout.fragment_music, container, false);
     }
 
@@ -148,6 +146,22 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     @Override
     public void onStart() {
         super.onStart();
+        if(mPlayer != null  && mPlayer.isPlaying()&& mPlayer.getPlayList() != null){
+            Log.d("qifan",""+mPlayer.getPlayList().getSongs().size());
+            for(int i=0;i<mPlayer.getPlayList().getSongs().size();i++){
+                View page = getActivity().getLayoutInflater().inflate(R.layout.viewpager_album_pager, null);
+                ShadowImageView imageViewAlbum = (ShadowImageView) page.findViewById(R.id.image_view_album);
+                Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(i));
+                if (bitmap == null) {
+                    imageViewAlbum.setImageResource(R.drawable.default_record_album);
+                } else {
+                    imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
+                }
+                albumPagerList.add(page);
+            }
+            albumPagerAdapter = new AlbumPagerAdapter(albumPagerList);
+            viewPagerAlbum.setAdapter(albumPagerAdapter);
+        }
         if (mPlayer != null && mPlayer.isPlaying()) {
             mHandler.removeCallbacks(mProgressCallback);
             mHandler.post(mProgressCallback);
@@ -235,29 +249,15 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     }
 
     private void onPlaySongEvent(PlaySongEvent event) {
+        Log.d("qifan","PlaySongEvent");
         Song song = event.song;
         playSong(song);
     }
 
     private void onPlayListNowEvent(PlayListNowEvent event) {
+        Log.d("qifan","onPlayListNowEvent");
         PlayList playList = event.playList;
         int playIndex = event.playIndex;
-
-        for(int i=0;i<playList.getSongs().size();i++){
-            View page = getActivity().getLayoutInflater().inflate(R.layout.viewpager_album_pager, null);
-            imageViewAlbum = (ShadowImageView) page.findViewById(R.id.image_view_album);
-            Bitmap bitmap = AlbumUtils.parseAlbum(playList.getSongs().get(i));
-            if (bitmap == null) {
-                imageViewAlbum.setImageResource(R.drawable.default_record_album);
-            } else {
-                imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
-            }
-            albumPagerList.add(page);
-        }
-
-        Log.d("qifan","playList.getSongs().size()"+playList.getSongs().size());
-        viewPagerAlbum.setAdapter(new AlbumPagerAdapter(albumPagerList));
-
         playSong(playList, playIndex);
     }
 
@@ -266,6 +266,8 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     private void playSong(Song song) {
         PlayList playList = new PlayList(song);
         playSong(playList, 0);
+        Log.d("qifan","onPlayListNowEvent");
+
     }
 
     private void playSong(PlayList playList, int playIndex) {
@@ -296,6 +298,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
         getActivity().startService(new Intent(getActivity(), PlaybackService.class));
         */
+
     }
 
     private void updateProgressTextWithProgress(int progress) {
@@ -345,11 +348,11 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     public void onPlayStatusChanged(boolean isPlaying) {
         updatePlayToggle(isPlaying);
         if (isPlaying) {
-            imageViewAlbum.resumeRotateAnimation();
+//            imageViewAlbum.resumeRotateAnimation();
             mHandler.removeCallbacks(mProgressCallback);
             mHandler.post(mProgressCallback);
         } else {
-            imageViewAlbum.pauseRotateAnimation();
+//            imageViewAlbum.pauseRotateAnimation();
             mHandler.removeCallbacks(mProgressCallback);
         }
     }
@@ -381,7 +384,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
     public void onSongUpdated(@Nullable Song song) {
         if (song == null) {
-            imageViewAlbum.cancelRotateAnimation();
+//            imageViewAlbum.cancelRotateAnimation();
             buttonPlayToggle.setImageResource(R.drawable.ic_play);
             seekBarProgress.setProgress(0);
             updateProgressTextWithProgress(0);
