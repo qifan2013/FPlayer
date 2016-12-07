@@ -9,10 +9,12 @@ android {
 
     defaultConfig {
         applicationId 'com.fan.player'
-        minSdkVersion 16
+        minSdkVersion 18
         targetSdkVersion 22
         versionCode getVersionCode("$BUILD")
         versionName "$VERSION"
+        renderscriptTargetApi 18
+        renderscriptSupportModeEnabled true
         vectorDrawables.useSupportLibrary = true
         aaptOptions.cruncherEnabled = false
         aaptOptions.useNewCruncher = false

@@ -487,8 +487,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
                 Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(position));
                 if (bitmap == null) {
                 } else {
-                    containLayout.setBackground(new BitmapDrawable(AlbumUtils.getRectBitmap(bitmap,x,y)));
-                    containLayout.getBackground().setAlpha(100);
+                    containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
                 }
             }
 

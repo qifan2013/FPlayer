@@ -1,8 +1,15 @@
 package com.fan.player.utils;
 
+import android.content.Context;
 import android.graphics.*;
 import android.media.MediaMetadataRetriever;
+import android.renderscript.Allocation;
+import android.renderscript.Element;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicBlur;
 import android.util.Log;
+
+import com.fan.player.MusicPlayerApplication;
 import com.fan.player.data.model.Song;
 
 import java.io.File;
@@ -62,7 +69,21 @@ public class AlbumUtils {
 
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
-        return Bitmap.createBitmap(bitmap,(w-x*h/y)/2,0,(w+x*h/y)/2,
-                bitmap.getHeight());
+        return Bitmap.createBitmap(bitmap,(w-x*h/y)/2,0,(w+x*h/y)/2, h);
+    }
+
+    public static Bitmap blur(Bitmap bitmap, float radius) {
+        Bitmap output = Bitmap.createBitmap(bitmap); // 创建输出图片
+        RenderScript rs = RenderScript.create(MusicPlayerApplication.getInstance()); // 构建一个RenderScript对象
+        ScriptIntrinsicBlur gaussianBlue = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs)); //
+        // 创建高斯模糊脚本
+        Allocation allIn = Allocation.createFromBitmap(rs, bitmap); // 开辟输入内存
+        Allocation allOut = Allocation.createFromBitmap(rs, output); // 开辟输出内存
+        gaussianBlue.setRadius(radius); // 设置模糊半径，范围0f<radius<=25f
+        gaussianBlue.setInput(allIn); // 设置输入内存
+        gaussianBlue.forEach(allOut); // 模糊编码，并将内存填入输出内存
+        allOut.copyTo(output); // 将输出内存编码为Bitmap，图片大小必须注意
+        rs.destroy(); // 关闭RenderScript对象，API>=23则使用rs.releaseAllContexts()
+        return output;
     }
 }
