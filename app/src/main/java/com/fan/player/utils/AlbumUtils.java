@@ -58,4 +58,11 @@ public class AlbumUtils {
         //return _bmp;
         return output;
     }
+    public static Bitmap getRectBitmap(Bitmap bitmap,int x,int y) {
+
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        return Bitmap.createBitmap(bitmap,(w-x*h/y)/2,0,(w+x*h/y)/2,
+                bitmap.getHeight());
+    }
 }

@@ -1,4 +1,4 @@
-package com.fan.player.
+package com.fan.player;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -321,7 +321,7 @@ public class MusicPlayerBottomFragment extends BaseFragment implements MusicPlay
         if (bitmap == null) {
             imageViewAlbum.setImageResource(R.drawable.default_record_album);
         } else {
-            imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
+            imageViewAlbum.setImageBitmap(bitmap);
         }
         mHandler.removeCallbacks(mProgressCallback);
         if (mPlayer.isPlaying()) {
