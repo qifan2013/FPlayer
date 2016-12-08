@@ -12,7 +12,6 @@
     android:divider="@drawable/common_divider_large_horizontal"
     android:showDividers="beginning|middle|end"
     >
-
     <RadioButton
         android:id="@+id/radio_button_play_list"
         android:layout_width="wrap_content"

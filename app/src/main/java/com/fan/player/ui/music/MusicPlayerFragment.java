@@ -459,7 +459,8 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
         Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayingSong());
         if (bitmap == null) {
         } else {
-            containLayout.setBackground(new BitmapDrawable(AlbumUtils.getRectBitmap(bitmap,x,y)));
+            containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
+
         }
         for(int i=0;i<mPlayer.getPlayList().getSongs().size();i++){
             albumFragments.add(MusicAlbumFragment.newInstance(mPlayer.getPlayList().getSongs().get(i)));
@@ -487,7 +488,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
                 Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(position));
                 if (bitmap == null) {
                 } else {
-                    containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
+                    containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),55f)));
                 }
             }
 

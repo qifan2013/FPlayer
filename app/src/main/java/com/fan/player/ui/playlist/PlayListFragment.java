@@ -47,6 +47,9 @@ public class PlayListFragment extends BaseFragment implements PlayListContract.V
 
     PlayListContract.Presenter mPresenter;
 
+    public PlayListContract.Presenter getPresenter(){
+        return  mPresenter;
+    }
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

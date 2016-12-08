@@ -22,11 +22,16 @@
         <include layout="@layout/layout_main_custom_toolbar"/>
 
     </android.support.v7.widget.Toolbar>
+    <com.fan.player.ui.widget.ViewPagerLineIndicator
+        android:id="@+id/view_pager_indicator"
 
+        android:layout_below="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="5dp"/>
     <android.support.v4.view.ViewPager
         android:id="@+id/view_pager"
         android:background="@color/gray"
-        android:layout_below="@+id/toolbar"
+        android:layout_below="@+id/view_pager_indicator"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

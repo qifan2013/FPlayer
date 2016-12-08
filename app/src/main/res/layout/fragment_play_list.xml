@@ -19,7 +19,6 @@
         android:clipToPadding="false"
         tools:listitem="@layout/item_play_list"
         />
-
     <ProgressBar
         style="@style/MP.Theme.Widget.ProgressBar"/>
 </RelativeLayout>

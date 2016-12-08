@@ -9,12 +9,15 @@ import butterknife.BindView;
 import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
+import butterknife.OnClick;
+
 import com.fan.player.R;
 import com.fan.player.ui.base.BaseActivity;
 import com.fan.player.ui.base.BaseFragment;
 import com.fan.player.ui.local.LocalFilesFragment;
 import com.fan.player.ui.playlist.PlayListFragment;
 import com.fan.player.ui.settings.SettingsFragment;
+import com.fan.player.ui.widget.ViewPagerLineIndicator;
 
 import java.util.List;
 
@@ -26,6 +29,8 @@ public class MainActivity extends BaseActivity {
     Toolbar toolbar;
     @BindView(R.id.view_pager)
     ViewPager viewPager;
+    @BindView(R.id.view_pager_indicator)
+    ViewPagerLineIndicator viewPagerIndicator;
     @BindViews({R.id.radio_button_play_list, R.id.radio_button_local_files})
     List<RadioButton> radioButtons;
 
@@ -53,6 +58,7 @@ public class MainActivity extends BaseActivity {
         // Inflate ViewPager
         MainPagerAdapter adapter = new MainPagerAdapter(getSupportFragmentManager(), mTitles, fragments);
         viewPager.setAdapter(adapter);
+        viewPagerIndicator.setViewPager(viewPager);
         viewPager.setOffscreenPageLimit(adapter.getCount() - 1);
         viewPager.setPageMargin(getResources().getDimensionPixelSize(R.dimen.mp_margin_large));
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
