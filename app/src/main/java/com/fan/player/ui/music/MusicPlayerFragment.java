@@ -5,6 +5,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -38,6 +39,11 @@ import com.fan.player.utils.AlbumUtils;
 import com.fan.player.utils.TimeUtils;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RunnableFuture;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -82,16 +88,36 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     @BindView(R.id.button_favorite_toggle)
     ImageView buttonFavoriteToggle;
 
-    private int currentIndex = 0;
     private IPlayback mPlayer;
     private AlbumFragmentAdapter mAlbumFragmentAdapter;
     private ArrayList<MusicAlbumFragment> albumFragments = new ArrayList<>();
 
     private ArrayList<View> albumPagerList = new ArrayList<>();
 
-    private Handler mHandler = new Handler();
 
     private MusicPlayerContract.Presenter mPresenter;
+
+    private int currentIndex = 0;
+
+    ExecutorService pool = Executors.newFixedThreadPool(10);
+
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            // TODO Auto-generated method stub
+            // 要做的事情
+            if(msg.what == 1){
+                playSong(mPlayer.getPlayList(),currentIndex );
+                int x = containLayout.getWidth();
+                int y = containLayout.getHeight();
+                Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(currentIndex));
+                if (bitmap != null) {
+                    containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
+                }
+            }
+            super.handleMessage(msg);
+        }
+    };
 
     private Runnable mProgressCallback = new Runnable() {
         @Override
@@ -114,6 +140,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
             }
         }
     };
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -148,6 +175,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
                 }
             }
         });
+
 
         new MusicPlayerPresenter(getActivity(), AppRepository.getInstance(), this).subscribe();
     }
@@ -251,8 +279,8 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
         Log.d("qifan","onPlayListNowEvent");
         PlayList playList = event.playList;
         int playIndex = event.playIndex;
-        playSong(playList, playIndex);
         currentIndex = playIndex;
+        playSong(playList, playIndex);
     }
 
     // Music Controls
@@ -268,7 +296,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
         if (playList == null) return;
         Log.d("qifan","onPlayListNowEvent");
         playList.setPlayMode(PreferenceManager.lastPlayMode(getActivity()));
-        // boolean result =
         mPlayer.play(playList, playIndex);
 
         Song song = playList.getCurrentSong();
@@ -469,27 +496,50 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
         viewPagerAlbum.setAdapter(mAlbumFragmentAdapter);
         currentIndex = mPlayer.getPlayList().getSongs().indexOf(mPlayer.getPlayingSong());
         viewPagerAlbum.setCurrentItem(currentIndex);
-        viewPagerAlbum.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPagerAlbum.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
             }
 
             @Override
             public void onPageSelected(int position) {
-                if (position > currentIndex){
-                    mPlayer.playNext();
-                }else{
-                    mPlayer.playLast();
-                }
-                int x = containLayout.getWidth();
-                int y = containLayout.getHeight();
+                pool.execute(new MusicSelectedJugeThread(position));
                 currentIndex = position;
-                Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(position));
-                if (bitmap == null) {
-                } else {
-                    containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),55f)));
-                }
+//
+//                if (position > currentIndex){
+//                    cachedThreadPool.execute(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            mPlayer.playNext();
+//                            int x = containLayout.getWidth();
+//                            int y = containLayout.getHeight();
+//                            currentIndex = preIndex;
+//                            Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(preIndex));
+//                            if (bitmap == null) {
+//                            } else {
+//                                containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
+//                            }
+//                        }
+//                    });
+//
+//                }else{
+//
+//                    cachedThreadPool.execute(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            mPlayer.playLast();
+//                            int x = containLayout.getWidth();
+//                            int y = containLayout.getHeight();
+//                            currentIndex = preIndex;
+//                            Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(preIndex));
+//                            if (bitmap == null) {
+//                            } else {
+//                                containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
+//                            }
+//                        }
+//                    });
+//                }
+
             }
 
             @Override
@@ -524,5 +574,40 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
             return mFragments.size();
         }
     }
+    class MusicSelectedJugeThread implements  Runnable{
 
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        private int index;
+
+        public MusicSelectedJugeThread(int index){
+            this.index = index;
+        }
+
+        @Override
+        public void run() {
+            Log.d("qifan","thread "+index);
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+
+                    Log.d("qifan","thread "+index +" task");
+
+                    Log.d("qifan","thread "+index +" task"+index+"index "+currentIndex+" curr");
+                    if(index == currentIndex){
+                        Message msg = new Message();
+                        msg.what = 1;
+                        mHandler.sendMessage(msg);
+                    }
+                }
+            }, 1000);
+
+        }
+    }
 }
