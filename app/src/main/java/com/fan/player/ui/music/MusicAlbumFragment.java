@@ -55,10 +55,24 @@ public class MusicAlbumFragment extends BaseFragment {
         } else {
             imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
         }
+
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    public void startRotateAnimation(){
+        imageViewAlbum.startRotateAnimation();
+    }
+    public void pauseRotateAnimation(){
+        imageViewAlbum.pauseRotateAnimation();
+    }
+    public  void resumeRotateAnimation(){
+        imageViewAlbum.resumeRotateAnimation();
+    }
+    public void cancelRotateAnimation(){
+        imageViewAlbum.cancelRotateAnimation();
     }
 }

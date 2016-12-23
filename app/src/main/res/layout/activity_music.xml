@@ -14,7 +14,6 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?android:attr/actionBarSize"
-        android:background="@color/toolbar.background"
         toolbar:titleTextAppearance="@style/MP.Theme.TextAppearance.Light.Toolbar.Title"
         toolbar:title="@string/mp.fragment.title.music"
         >

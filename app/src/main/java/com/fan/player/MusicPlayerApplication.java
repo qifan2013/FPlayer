@@ -1,6 +1,9 @@
 package com.fan.player;
 
 import android.app.Application;
+import android.view.Display;
+import android.view.WindowManager;
+
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 /**
@@ -14,10 +17,17 @@ public class MusicPlayerApplication extends Application {
 
     private static MusicPlayerApplication sInstance;
 
+    private int height,width;
+
     @Override
     public void onCreate() {
         super.onCreate();
 
+        WindowManager manager = (WindowManager) this
+                .getSystemService(this.WINDOW_SERVICE);
+        Display display = manager.getDefaultDisplay();
+        height = display.getHeight();
+        width = display.getWidth();
         sInstance = this;
 
         // Custom fonts
@@ -33,4 +43,23 @@ public class MusicPlayerApplication extends Application {
     public static MusicPlayerApplication getInstance() {
         return sInstance;
     }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+
 }

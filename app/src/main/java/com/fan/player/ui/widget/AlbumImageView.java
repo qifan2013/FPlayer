@@ -121,7 +121,7 @@ public class AlbumImageView extends ImageView {
         mPaint.setTextSize(ALBUM_CIRCLE_TEXT_SIZE * mDensity);
 
         mRotateAnimator = ObjectAnimator.ofFloat(this, "rotation", 0f, 360f);
-        mRotateAnimator.setDuration(3600);
+        mRotateAnimator.setDuration(25000);
         mRotateAnimator.setInterpolator(new LinearInterpolator());
         mRotateAnimator.setRepeatMode(ValueAnimator.RESTART);
         mRotateAnimator.setRepeatCount(ValueAnimator.INFINITE);

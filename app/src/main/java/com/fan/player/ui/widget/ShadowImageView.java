@@ -10,6 +10,7 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.os.Build;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.view.animation.BounceInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 
@@ -37,8 +38,11 @@ public class ShadowImageView extends ImageView {
 
     private int mShadowRadius;
 
+    private Boolean isRotating = false;
+
     // Animation
     private ObjectAnimator mRotateAnimator;
+    public ObjectAnimator mBackRotateAnimator;
     private long mLastAnimationValue;
 
     public ShadowImageView(Context context) {
@@ -86,10 +90,11 @@ public class ShadowImageView extends ImageView {
         setBackground(circle);
 
         mRotateAnimator = ObjectAnimator.ofFloat(this, "rotation", 0f, 360f);
-        mRotateAnimator.setDuration(7200);
+        mRotateAnimator.setDuration(25000);
         mRotateAnimator.setInterpolator(new LinearInterpolator());
         mRotateAnimator.setRepeatMode(ValueAnimator.RESTART);
         mRotateAnimator.setRepeatCount(ValueAnimator.INFINITE);
+
     }
 
     private boolean elevationSupported() {
@@ -107,23 +112,40 @@ public class ShadowImageView extends ImageView {
     // Animation
 
     public void startRotateAnimation() {
-        mRotateAnimator.cancel();
-        mRotateAnimator.start();
+        if(isRotating){
+            resumeRotateAnimation();
+        }else{
+            mRotateAnimator.cancel();
+            mRotateAnimator.start();
+        }
+
+        isRotating = true;
     }
 
     public void cancelRotateAnimation() {
+
+
+        mBackRotateAnimator = ObjectAnimator.ofFloat(this, "rotation", mLastAnimationValue, 360f);
+        mBackRotateAnimator.setDuration(300);
+        mBackRotateAnimator.setInterpolator(new LinearInterpolator());
+        mBackRotateAnimator.start();
+        mBackRotateAnimator.cancel();
         mLastAnimationValue = 0;
         mRotateAnimator.cancel();
+        isRotating = false;
+
     }
 
     public void pauseRotateAnimation() {
         mLastAnimationValue = mRotateAnimator.getCurrentPlayTime();
         mRotateAnimator.cancel();
+        isRotating = false;
     }
 
     public void resumeRotateAnimation() {
         mRotateAnimator.start();
         mRotateAnimator.setCurrentPlayTime(mLastAnimationValue);
+        isRotating = true;
     }
 
     @Override
@@ -169,5 +191,8 @@ public class ShadowImageView extends ImageView {
                     null, Shader.TileMode.CLAMP);
             mShadowPaint.setShader(mRadialGradient);
         }
+    }
+    public boolean isRotating(){
+        return this.isRotating;
     }
 }

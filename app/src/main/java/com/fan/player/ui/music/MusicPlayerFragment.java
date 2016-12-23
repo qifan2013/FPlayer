@@ -2,6 +2,7 @@ package com.fan.player.ui.music;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.RotateDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,11 +18,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import com.fan.player.R;
 import com.fan.player.RxBus;
@@ -35,6 +42,7 @@ import com.fan.player.player.IPlayback;
 import com.fan.player.player.PlayMode;
 import com.fan.player.player.PlaybackService;
 import com.fan.player.ui.base.BaseFragment;
+import com.fan.player.ui.widget.BackgroundImageView;
 import com.fan.player.utils.AlbumUtils;
 import com.fan.player.utils.TimeUtils;
 
@@ -66,9 +74,10 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
     // Update seek bar every second
     private static final long UPDATE_PROGRESS_INTERVAL = 1000;
-
+    @BindView(R.id.layout_contain_bg)
+    FrameLayout containLayoutbg;
     @BindView(R.id.layout_contain)
-    LinearLayout containLayout;
+    RelativeLayout containLayout;
     @BindView(R.id.view_pager_album)
     ViewPager viewPagerAlbum;
     @BindView(R.id.text_view_name)
@@ -94,26 +103,34 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
     private ArrayList<View> albumPagerList = new ArrayList<>();
 
-
+    private FrameLayout.LayoutParams tparams;
+    private FrameLayout.LayoutParams params;
     private MusicPlayerContract.Presenter mPresenter;
-
+    private AlphaAnimation alphaAnimation;
     private int currentIndex = 0;
 
-    ExecutorService pool = Executors.newFixedThreadPool(10);
+    ExecutorService changeSongPool = Executors.newCachedThreadPool(new MusicThreadFactory("changeSong"));
+    ExecutorService changeBgPool = Executors.newCachedThreadPool(new MusicThreadFactory("changeBg"));
+
+    private int x ,y;
 
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             // TODO Auto-generated method stub
             // 要做的事情
-            if(msg.what == 1){
-                playSong(mPlayer.getPlayList(),currentIndex );
-                int x = containLayout.getWidth();
-                int y = containLayout.getHeight();
-                Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(currentIndex));
-                if (bitmap != null) {
-                    containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
-                }
+            switch (msg.what){
+                case 1:
+                    playSong(mPlayer.getPlayList(),currentIndex );
+                    AlbumAnimation(1);
+                    break;
+                case 2:
+                    containLayoutbg.addView(BackgroundImageView.newInstance(getActivity(),(Bitmap) msg.obj,x,y),tparams);
+                    containLayoutbg.startAnimation(MusicBgAnimation.newInstance(containLayout,(Bitmap) msg.obj));
+//                    containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap((Bitmap) msg.obj,x,y),25f)));
+                    break;
+                default:
+                    break;
             }
             super.handleMessage(msg);
         }
@@ -300,25 +317,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
         Song song = playList.getCurrentSong();
         onSongUpdated(song);
-        /*
-        seekBarProgress.setProgress(0);
-        seekBarProgress.setEnabled(result);
-        textViewProgress.setText(R.string.mp_music_default_duration);
-
-        if (result) {
-            imageViewAlbum.startRotateAnimation();
-            buttonPlayToggle.setImageResource(R.drawable.ic_pause);
-            textViewDuration.setText(TimeUtils.formatDuration(song.getDuration()));
-        } else {
-            buttonPlayToggle.setImageResource(R.drawable.ic_play);
-            textViewDuration.setText(R.string.mp_music_default_duration);
-        }
-
-        mHandler.removeCallbacks(mProgressCallback);
-        mHandler.post(mProgressCallback);
-
-        getActivity().startService(new Intent(getActivity(), PlaybackService.class));
-        */
 
     }
 
@@ -370,11 +368,11 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     public void onPlayStatusChanged(boolean isPlaying) {
         updatePlayToggle(isPlaying);
         if (isPlaying) {
-//            imageViewAlbum.resumeRotateAnimation();
+            AlbumAnimation(3);
             mHandler.removeCallbacks(mProgressCallback);
             mHandler.post(mProgressCallback);
         } else {
-//            imageViewAlbum.pauseRotateAnimation();
+            AlbumAnimation(2);
             mHandler.removeCallbacks(mProgressCallback);
         }
     }
@@ -409,8 +407,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
     public void onSongUpdated(@Nullable Song song) {
         if (song == null) {
-
-//            imageViewAlbum.cancelRotateAnimation();
+//            AlbumAnimation(4);
             buttonPlayToggle.setImageResource(R.drawable.ic_play);
             seekBarProgress.setProgress(0);
             updateProgressTextWithProgress(0);
@@ -436,9 +433,11 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 //            imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
 //        }
 //        imageViewAlbum.pauseRotateAnimation();
+
+//        AlbumAnimation(2);
         mHandler.removeCallbacks(mProgressCallback);
         if (mPlayer.isPlaying()) {
-//            imageViewAlbum.startRotateAnimation();
+            AlbumAnimation(1);
             mHandler.post(mProgressCallback);
             buttonPlayToggle.setImageResource(R.drawable.ic_pause);
         }
@@ -481,13 +480,17 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     }
 
     public void initAlbum(){
-        int x = containLayout.getWidth();
-        int y = containLayout.getHeight();
+        x = containLayout.getWidth();
+        y = containLayout.getHeight();
+        params=new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);//定义框架布局器参数
+        tparams=new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT);//定义显示组件参数
         Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayingSong());
         if (bitmap == null) {
         } else {
-            containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
-
+//            containLayoutbg.setBackgroundBitmap(bitmap,x,y);
+            containLayoutbg.addView(BackgroundImageView.newInstance(getActivity(),bitmap,x,y),tparams);
         }
         for(int i=0;i<mPlayer.getPlayList().getSongs().size();i++){
             albumFragments.add(MusicAlbumFragment.newInstance(mPlayer.getPlayList().getSongs().get(i)));
@@ -499,46 +502,15 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
         viewPagerAlbum.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                AlbumAnimation(2);
             }
 
             @Override
             public void onPageSelected(int position) {
-                pool.execute(new MusicSelectedJugeThread(position));
+                changeSongPool.execute(new MusicSelectedJugeThread(position));
+                changeBgPool.execute(new MusicChangeBgThread(position));
                 currentIndex = position;
-//
-//                if (position > currentIndex){
-//                    cachedThreadPool.execute(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            mPlayer.playNext();
-//                            int x = containLayout.getWidth();
-//                            int y = containLayout.getHeight();
-//                            currentIndex = preIndex;
-//                            Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(preIndex));
-//                            if (bitmap == null) {
-//                            } else {
-//                                containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
-//                            }
-//                        }
-//                    });
-//
-//                }else{
-//
-//                    cachedThreadPool.execute(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            mPlayer.playLast();
-//                            int x = containLayout.getWidth();
-//                            int y = containLayout.getHeight();
-//                            currentIndex = preIndex;
-//                            Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(preIndex));
-//                            if (bitmap == null) {
-//                            } else {
-//                                containLayout.setBackground(new BitmapDrawable(AlbumUtils.blur(AlbumUtils.getRectBitmap(bitmap,x,y),25f)));
-//                            }
-//                        }
-//                    });
-//                }
 
             }
 
@@ -552,6 +524,8 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     public class AlbumFragmentAdapter extends FragmentStatePagerAdapter{
 
         private ArrayList<MusicAlbumFragment> mFragments = new ArrayList<>();
+
+        public  MusicAlbumFragment currentFragment;
 
         public AlbumFragmentAdapter(FragmentManager fm, ArrayList fragments) {
             super(fm);
@@ -573,6 +547,15 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
             if (mFragments == null) return 0;
             return mFragments.size();
         }
+
+        @Override
+        public void setPrimaryItem(View container, int position, Object object) {
+            currentFragment = (MusicAlbumFragment) object;
+            super.setPrimaryItem(container, position, object);
+        }
+        public MusicAlbumFragment getFragment(int position) {
+            return mFragments.get(position);
+        }
     }
     class MusicSelectedJugeThread implements  Runnable{
 
@@ -592,22 +575,74 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
         @Override
         public void run() {
-            Log.d("qifan","thread "+index);
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-
-                    Log.d("qifan","thread "+index +" task");
-
-                    Log.d("qifan","thread "+index +" task"+index+"index "+currentIndex+" curr");
-                    if(index == currentIndex){
-                        Message msg = new Message();
-                        msg.what = 1;
-                        mHandler.sendMessage(msg);
-                    }
+            try {
+                Thread.currentThread().sleep(1000);
+                Message msg = new Message();
+                if(index == currentIndex){
+                    msg.what = 1;
                 }
-            }, 1000);
+                mHandler.sendMessage(msg);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    class MusicChangeBgThread implements  Runnable{
 
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        private int index;
+
+        public MusicChangeBgThread(int index){
+            this.index = index;
+        }
+
+        @Override
+        public void run() {
+            Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayList().getSongs().get(index));
+            if (bitmap != null) {
+                Message msg = new Message();
+                msg.what = 2;
+                msg.obj = bitmap;
+                mHandler.sendMessage(msg);
+              }
+        }
+    }
+    public void AlbumAnimation(int type){
+        switch (type){
+            case 1:
+                //start
+                mAlbumFragmentAdapter.getFragment(currentIndex).startRotateAnimation();
+                if(currentIndex == 0){
+                    mAlbumFragmentAdapter.getFragment(1).cancelRotateAnimation();
+                }else if(currentIndex == mPlayer.getPlayList().getNumOfSongs() - 1 ){
+                    mAlbumFragmentAdapter.getFragment(mPlayer.getPlayList().getNumOfSongs() - 2).cancelRotateAnimation();
+                }else{
+                    mAlbumFragmentAdapter.getFragment(currentIndex-1).cancelRotateAnimation();
+                    mAlbumFragmentAdapter.getFragment(currentIndex+1).cancelRotateAnimation();
+                }
+
+                break;
+            case 2:
+                //pause
+                mAlbumFragmentAdapter.getFragment(currentIndex).pauseRotateAnimation();
+                break;
+            case 3:
+                //resume
+                mAlbumFragmentAdapter.getFragment(currentIndex).resumeRotateAnimation();
+                break;
+            case 4:
+                //cancel
+                mAlbumFragmentAdapter.getFragment(currentIndex).cancelRotateAnimation();
+                break;
+            default:
+                break;
         }
     }
 }
