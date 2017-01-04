@@ -22,7 +22,7 @@
             android:id="@+id/view_pager_album"
             android:layout_width="match_parent"
             android:layout_weight="1"
-            android:layout_height="@dimen/mp.music.album.size"/>
+            android:layout_height="@dimen/mp.music.album.around.size"/>
 
         <TextView
             android:id="@+id/text_view_name"

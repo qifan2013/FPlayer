@@ -1,8 +1,6 @@
 package com.fan.player.ui.music;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.RotateDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,18 +15,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.RotateAnimation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 
 import com.fan.player.R;
 import com.fan.player.RxBus;
@@ -47,11 +40,8 @@ import com.fan.player.utils.AlbumUtils;
 import com.fan.player.utils.TimeUtils;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.RunnableFuture;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -122,7 +112,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
             switch (msg.what){
                 case 1:
                     playSong(mPlayer.getPlayList(),currentIndex );
-                    AlbumAnimation(1);
                     break;
                 case 2:
                     containLayoutbg.addView(BackgroundImageView.newInstance(getActivity(),(Bitmap) msg.obj,x,y),tparams);
@@ -189,6 +178,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
                 if (mPlayer.isPlaying()) {
                     mHandler.removeCallbacks(mProgressCallback);
                     mHandler.post(mProgressCallback);
+
                 }
             }
         });
@@ -226,8 +216,10 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
         if (mPlayer.isPlaying()) {
             mPlayer.pause();
+            AlbumAnimation("pause",currentIndex);
         } else {
             mPlayer.play();
+            AlbumAnimation("resume",currentIndex);
         }
     }
 
@@ -368,11 +360,9 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
     public void onPlayStatusChanged(boolean isPlaying) {
         updatePlayToggle(isPlaying);
         if (isPlaying) {
-            AlbumAnimation(3);
             mHandler.removeCallbacks(mProgressCallback);
             mHandler.post(mProgressCallback);
         } else {
-            AlbumAnimation(2);
             mHandler.removeCallbacks(mProgressCallback);
         }
     }
@@ -407,7 +397,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
 
     public void onSongUpdated(@Nullable Song song) {
         if (song == null) {
-//            AlbumAnimation(4);
             buttonPlayToggle.setImageResource(R.drawable.ic_play);
             seekBarProgress.setProgress(0);
             updateProgressTextWithProgress(0);
@@ -415,7 +404,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
             mHandler.removeCallbacks(mProgressCallback);
             return;
         }
-
         // Step 1: Song name and artist
         textViewName.setText(song.getDisplayName());
         textViewArtist.setText(song.getArtist());
@@ -423,23 +411,19 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
         buttonFavoriteToggle.setImageResource(song.isFavorite() ? R.drawable.ic_favorite_yes : R.drawable.ic_favorite_no);
         // Step 3: Duration
         textViewDuration.setText(TimeUtils.formatDuration(song.getDuration()));
-        // Step 4: Keep these things updated
-        // - Album rotation
-        // - Progress(textViewProgress & seekBarProgress)
-//        Bitmap bitmap = AlbumUtils.parseAlbum(song);
-//        if (bitmap == null) {
-//            imageViewAlbum.setImageResource(R.drawable.default_record_album);
-//        } else {
-//            imageViewAlbum.setImageBitmap(AlbumUtils.getCroppedBitmap(bitmap));
-//        }
-//        imageViewAlbum.pauseRotateAnimation();
 
-//        AlbumAnimation(2);
         mHandler.removeCallbacks(mProgressCallback);
         if (mPlayer.isPlaying()) {
-            AlbumAnimation(1);
             mHandler.post(mProgressCallback);
+            viewPagerAlbum.setCurrentItem(mPlayer.getPlayList().getSongs().indexOf(song));
             buttonPlayToggle.setImageResource(R.drawable.ic_pause);
+            AlbumAnimation("start",currentIndex);
+            if(currentIndex != 0 && mAlbumFragmentAdapter.getFragment(currentIndex-1) != null){
+                AlbumAnimation("cancel",currentIndex-1);
+            }
+            if(currentIndex != mPlayer.getPlayList().getSongs().size() && mAlbumFragmentAdapter.getFragment(currentIndex+1) != null){
+                AlbumAnimation("cancel",currentIndex+1);
+            }
         }
     }
 
@@ -489,7 +473,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
         Bitmap bitmap = AlbumUtils.parseAlbum(mPlayer.getPlayingSong());
         if (bitmap == null) {
         } else {
-//            containLayoutbg.setBackgroundBitmap(bitmap,x,y);
             containLayoutbg.addView(BackgroundImageView.newInstance(getActivity(),bitmap,x,y),tparams);
         }
         for(int i=0;i<mPlayer.getPlayList().getSongs().size();i++){
@@ -503,7 +486,7 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-                AlbumAnimation(2);
+                Log.d("qifan","positionoffset "+positionOffset+" position "+position+" positionOffsetPixels "+positionOffsetPixels +" currentindex "+currentIndex);
             }
 
             @Override
@@ -511,7 +494,6 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
                 changeSongPool.execute(new MusicSelectedJugeThread(position));
                 changeBgPool.execute(new MusicChangeBgThread(position));
                 currentIndex = position;
-
             }
 
             @Override
@@ -614,32 +596,23 @@ public class MusicPlayerFragment extends BaseFragment implements MusicPlayerCont
               }
         }
     }
-    public void AlbumAnimation(int type){
+    public void AlbumAnimation(String type,int index){
         switch (type){
-            case 1:
+            case "start":
                 //start
-                mAlbumFragmentAdapter.getFragment(currentIndex).startRotateAnimation();
-                if(currentIndex == 0){
-                    mAlbumFragmentAdapter.getFragment(1).cancelRotateAnimation();
-                }else if(currentIndex == mPlayer.getPlayList().getNumOfSongs() - 1 ){
-                    mAlbumFragmentAdapter.getFragment(mPlayer.getPlayList().getNumOfSongs() - 2).cancelRotateAnimation();
-                }else{
-                    mAlbumFragmentAdapter.getFragment(currentIndex-1).cancelRotateAnimation();
-                    mAlbumFragmentAdapter.getFragment(currentIndex+1).cancelRotateAnimation();
-                }
-
+                mAlbumFragmentAdapter.getFragment(index).startRotateAnimation();
                 break;
-            case 2:
+            case "pause":
                 //pause
-                mAlbumFragmentAdapter.getFragment(currentIndex).pauseRotateAnimation();
+                mAlbumFragmentAdapter.getFragment(index).pauseRotateAnimation();
                 break;
-            case 3:
+            case "resume":
                 //resume
-                mAlbumFragmentAdapter.getFragment(currentIndex).resumeRotateAnimation();
+                mAlbumFragmentAdapter.getFragment(index).resumeRotateAnimation();
                 break;
-            case 4:
+            case "cancel":
                 //cancel
-                mAlbumFragmentAdapter.getFragment(currentIndex).cancelRotateAnimation();
+                mAlbumFragmentAdapter.getFragment(index).cancelRotateAnimation();
                 break;
             default:
                 break;

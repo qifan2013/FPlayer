@@ -17,7 +17,7 @@ import android.view.ViewGroup;
 import com.fan.player.R;
 import com.fan.player.data.model.Song;
 import com.fan.player.ui.base.BaseFragment;
-import com.fan.player.ui.widget.ShadowImageView;
+import com.fan.player.ui.widget.RotateImageView;
 import com.fan.player.utils.AlbumUtils;
 
 import butterknife.BindView;
@@ -26,7 +26,17 @@ import butterknife.ButterKnife;
 public class MusicAlbumFragment extends BaseFragment {
 
     @BindView(R.id.image_view_album)
-    ShadowImageView imageViewAlbum;
+    RotateImageView imageViewAlbum;
+    @BindView(R.id.image_view_album_around)
+    RotateImageView imageViewAlbumAround;
+
+    public Song getmSong() {
+        return mSong;
+    }
+
+    public void setmSong(Song mSong) {
+        this.mSong = mSong;
+    }
 
     private Song mSong;
 
@@ -65,14 +75,18 @@ public class MusicAlbumFragment extends BaseFragment {
 
     public void startRotateAnimation(){
         imageViewAlbum.startRotateAnimation();
+        imageViewAlbumAround.startRotateAnimation();
     }
     public void pauseRotateAnimation(){
         imageViewAlbum.pauseRotateAnimation();
+        imageViewAlbumAround.pauseRotateAnimation();
     }
     public  void resumeRotateAnimation(){
         imageViewAlbum.resumeRotateAnimation();
+        imageViewAlbumAround.resumeRotateAnimation();
     }
     public void cancelRotateAnimation(){
         imageViewAlbum.cancelRotateAnimation();
+        imageViewAlbumAround.cancelRotateAnimation();
     }
 }

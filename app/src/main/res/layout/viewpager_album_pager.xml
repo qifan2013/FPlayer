@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/mp.music.album.size"
+    android:layout_height="@dimen/mp.music.album.around.size"
     android:gravity="center">
-    <com.fan.player.ui.widget.ShadowImageView
+    <com.fan.player.ui.widget.RotateImageView
+        android:layout_centerInParent="true"
+        android:id="@+id/image_view_album_around"
+        android:layout_width="@dimen/mp.music.album.around.size"
+        android:layout_height="@dimen/mp.music.album.around.size"
+        android:src="@drawable/album_sround"
+        />
+
+    <com.fan.player.ui.widget.RotateImageView
         android:id="@+id/image_view_album"
         android:layout_width="@dimen/mp.music.album.size"
         android:layout_height="@dimen/mp.music.album.size"
-        android:src="@drawable/default_record_album"
-        />
-</LinearLayout>
+        android:background="@drawable/default_record_album"
+
+        android:layout_centerInParent="true"/>
+</RelativeLayout>
